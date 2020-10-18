@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Welcome to play Chess {% endblock %}</h1>
+    
+<div class='chessboard' id='chessboard'>
+    
+</div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script>
+      $(document).ready(function(){
+        $("#chessboard").html("<h1>Rendering Chess Board...</h1>")
+		pieces = {'BR1':'&#9820','BK1':'&#9822','BB1':'&#9821','BQ':'&#9819','BX':'&#9818','BB2':'&#9821','BK2':'&#9822','BR2':'&#9820',
+    'BP1':'&#9823','BP2':'&#9823','BP3':'&#9823','BP4':'&#9823','BP5':'&#9823','BP6':'&#9823','BP7':'&#9823','BP8':'&#9823',
+    'WP1':'&#9817','WP2':'&#9817','WP3':'&#9817','WP4':'&#9817','WP5':'&#9817','WP6':'&#9817','WP7':'&#9817','WP8':'&#9817',
+    'WR1':'&#9814','WK1':'&#9816','WB1':'&#9815','WQ':'&#9813','WX':'&#9812','WB2':'&#9815','WK2':'&#9816','WR2':'&#9814'};
+		pieces_white = ['WP1','WP2','WP3','WP4','WP5','WP6','WP7','WP8','WR1','WK1','WB1','WQ','WX','WB2','WK2','WR2'];
+		pieces_black = ['BR1','BK1','BB1','BQ','BX','BB2','BK2','BR2','BP1','BP2','BP3','BP4','BP5','BP6','BP7','BP8'];
+		white_cnt = 0;
+		black_cnt = 0;
+        table = "<table id='tblChessBoard'>";
+          for (i = 0; i < 8; i++) {
+            table += "<tr>";
+              for (j = 0; j < 8; j++) {
+			    bg = '';
+				if ((i + j) % 2 == 1) {
+					bg =  "bgcolor='#dddddd'";
+				}
+				if (i < 2) {
+					table += "<td id='cell_"+i+"_"+j+"' style='text-align:center' " + bg + ">"+pieces[pieces_black[black_cnt]]+"</td>";
+					black_cnt += 1;
+				}
+				else if (i > 5) {
+					table += "<td id='cell_"+i+"_"+j+"' style='text-align:center' " + bg + ">"+pieces[pieces_white[white_cnt]]+"</td>";
+					white_cnt += 1;
+				}
+				else {
+					table += "<td id='cell_"+i+"_"+j+"' style='text-align:center' " + bg + "></td>";
+				}
+              }
+            table += "</tr>";
+          }
+        table += "</table>";
+        $("#chessboard").html(table);
+        $("#tblChessBoard").css("border", "1px solid black");
+        $("[id^=cell_]").css("border", "1px solid black");
+        $("[id^=cell_]").css("min-width", "70px");
+        $("[id^=cell_]").css("height", "70px");
+      })
+    </script>
+{% endblock %}

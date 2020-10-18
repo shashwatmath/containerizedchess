@@ -1,0 +1,17 @@
+h1 {
+    border: 2px #eee solid;
+    color: brown;
+    text-align: center;
+    padding: 10px;
+}
+
+.tblChessBoard {
+    border:1px solid black;
+    width: 100%;
+}
+
+td.cellChessBoard {
+    border:10px solid black;
+    min-width: 100px;
+    background-color: red;
+}
