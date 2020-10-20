@@ -36,16 +36,14 @@ def loadchess():
     return render_template('listgames.html', data=data)
 
 if __name__ == '__main__':
-    cluster = Cluster(['127.0.0.2', '127.0.0.3'])
+    cluster = Cluster(['172.18.0.2', '172.18.0.3'])
     global session
     session = cluster.connect()
     keyspace = "CREATE KEYSPACE IF NOT EXISTS %s WITH replication = \
                 {'class': 'NetworkTopologyStrategy', 'dc1': '1', 'dc2': '1'} \
                     AND durable_writes = true;"%(KEYSPACENAME, )
-    #print (f'Keyspace: {keyspace}')
     session.execute(keyspace)
 
-    #print(f"USE {KEYSPACENAME};")
     session.execute(f"USE {KEYSPACENAME};")
 
     table = "CREATE TABLE IF NOT EXISTS chessgame ( \
@@ -55,7 +53,6 @@ if __name__ == '__main__':
             gameturn text STATIC, \
             PRIMARY KEY (gamecode, gamedate) )"
 
-    #print(f"Table: {table};")
     session.execute(table)
 
-    app.run()
+    app.run(host="172.18.0.6")
