@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    html {
+        height: 100%;
+    }
+    body {
+        min-height: 100%;
+        background-color:transparent;
+    }
+    h5, h4, h1 {
+        color:#EF5350;
+    }
+
+    .forgot-div {
+        text-align: :right!important;
+    }
+    .forgot-password {
+        text-align: right;
+        color:navy;
+    }
+</style>
+
+    <div class="row" style="padding-top: 20px;">
+        <div class="col-12 col-lg-6 col-xl-6">
+            <form action="/signup" method="POST">
+                <div class="login">
+                    <div class="login-screen">
+                        <div class="app-title">
+                            <h4 style="display: inline;">New to website? </h4>
+                        </div>
+                        <div class="login-form">
+                            <div class="control-group">
+                                <input type="text" class="login-field" value="" placeholder="username" name="username" mandatory>
+                                <label class="login-field-icon fui-user" for="login-name"></label>
+                            </div>
+                            <div class="control-group">
+                                <input type="password" class="login-field" value="" placeholder="password" name="password">
+                                <label class="login-field-icon fui-lock" for="login-pass"></label>
+                            </div>
+                            <div class="control-group">
+                                <input type="text" class="login-field" value="" placeholder="e-mail" name="email">
+                                <label class="login-field-icon fui-lock" for="login-email"></label>
+                            </div>
+                            <input type="submit" value="Sign Up" class="btn btn-primary btn-large">
+                        </div>
+                        <div style="color: rgb(139, 0, 0); text-align: center; font-size: large; font-weight: bold;">{{output}}</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-6">
+            <form action="/login" method="POST">
+                <div class="login">
+                    <div class="login-screen-lightseagreen">
+                        <div class="app-title">
+                            <h4 style="display: inline; color: black">Log In</h4>
+                        </div>
+                        <div class="login-form">
+                            <div class="control-group">
+                                <input type="text" class="login-field" value="" placeholder="username" name="username">
+                                <label class="login-field-icon fui-user" for="login-name"></label>
+                            </div>
+                            <div class="control-group">
+                                <input type="password" class="login-field" value="" placeholder="password" name="password">
+                                <label class="login-field-icon fui-lock" for="login-pass"></label>
+                            </div>
+                            <input type="submit" value="Login" class="btn btn-primary btn-large btn-black">
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="login">
+                <div class="login-screen-lightseagreen">
+                    <div class="control-group">
+                        <table style="width:80%; margin: auto;">
+                            <tr>
+                                <td>
+                                    <form>
+                                        <div class="login-form forgot-div" style="text-align: left;">
+                                            <a href="/" class="forgot-password">Forgot UserID?</a>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form>
+                                        <div class="login-form forgot-div" style="text-align: right;">
+                                            <a href="/" class="forgot-password">Forgot Password?</a>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="color: rgb(139, 0, 0); text-align: center; font-size: large; font-weight: bold;">{{error}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

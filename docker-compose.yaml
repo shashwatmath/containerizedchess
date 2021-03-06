@@ -1,0 +1,128 @@
+version: "3.8"
+services:
+  cas-chess:
+    image: shashwatmath/chess:0.5
+    #build: .
+    container_name: cas-chess
+    networks:
+      dc1ring:
+        ipv4_address: 172.18.0.6
+    depends_on:
+      cas-node4:
+        condition: service_healthy
+    ports:
+      - 5000:5000
+    restart: on-failure
+  cas-node1:
+    image: cassandra
+    container_name: cas-node1
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    networks:
+      dc1ring:
+        ipv4_address: 172.18.0.2
+    volumes:
+      - D:\Projects\python\chess\data\cas-node1:/opt/cassandra/data
+    environment:
+      - DS_LICENSE=accept
+      - CASSANDRA_SEEDS=172.18.0.2
+      - CASSANDRA_CLUSTER_NAME=cl-chess
+      - CASSANDRA_DC=dc1
+      - CASSANDRA_RACK=rack1
+      - LISTEN_ADDRESS=172.18.0.2
+      - RPC_ADDRESS=172.18.0.2
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+    command: cassandra -f -a
+    restart: on-failure
+  cas-node2:
+    image: cassandra
+    container_name: cas-node2
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    networks:
+      dc1ring:
+        ipv4_address: 172.18.0.3
+    volumes:
+      - D:\Projects\python\chess\data\cas-node2:/opt/cassandra/data
+    environment:
+      - DS_LICENSE=accept
+      - CASSANDRA_SEEDS=172.18.0.2
+      - CASSANDRA_CLUSTER_NAME=cl-chess
+      - CASSANDRA_DC=dc1
+      - CASSANDRA_RACK=rack2
+      - LISTEN_ADDRESS=172.18.0.3
+      - RPC_ADDRESS=172.18.0.3
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+    depends_on:
+      cas-node1:
+        condition: service_healthy
+    command: cassandra -f -a
+    restart: on-failure
+  cas-node3:
+    image: cassandra
+    container_name: cas-node3
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    networks:
+      dc1ring:
+        ipv4_address: 172.18.0.4
+    volumes:
+      - D:\Projects\python\chess\data\cas-node3:/opt/cassandra/data
+    environment:
+      - DS_LICENSE=accept
+      - CASSANDRA_SEEDS=172.18.0.3,172.18.0.2
+      - CASSANDRA_CLUSTER_NAME=cl-chess
+      - CASSANDRA_DC=dc2
+      - CASSANDRA_RACK=rack1
+      - LISTEN_ADDRESS=172.18.0.4
+      - RPC_ADDRESS=172.18.0.4
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+    depends_on:
+      cas-node2:
+        condition: service_healthy
+    command: cassandra -f -a
+    restart: on-failure
+  cas-node4:
+    image: cassandra
+    container_name: cas-node4
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    networks:
+      dc1ring:
+        ipv4_address: 172.18.0.5
+    volumes:
+      - D:\Projects\python\chess\data\cas-node4:/opt/cassandra/data
+    environment:
+      - DS_LICENSE=accept
+      - CASSANDRA_SEEDS=172.18.0.3,172.18.0.2
+      - CASSANDRA_CLUSTER_NAME=cl-chess
+      - CASSANDRA_DC=dc2
+      - CASSANDRA_RACK=rack2
+      - LISTEN_ADDRESS=172.18.0.5
+      - RPC_ADDRESS=172.18.0.5
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+    depends_on:
+      cas-node2:
+        condition: service_healthy
+    command: cassandra -f -a
+    restart: on-failure
+
+networks:
+  dc1ring:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16

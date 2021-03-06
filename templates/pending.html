@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <!--  <h1>{% block title %} Welcome to play Chess {% endblock %}</h1> -->
+    
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<!--    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+-->    <style>
+      #tblChessGames, #tblGameStats {
+        margin-top: 50px;
+        border: 1px solid #d9d9d9;
+        width: 80%;
+      }
+      #tblChessGames th {
+        background-color: #d9d9d9;
+        vertical-align: top;
+        height:30px;
+        text-align: left;
+        margin-left: 30px;
+        padding: 5px;
+        font-weight: normal;
+      }
+
+      #tblChessGames td, #tblGameStats td {
+        color: aquamarine;
+        vertical-align: top;
+        height:30px;
+        text-align: left;
+        margin-left: 30px;
+        padding: 5px;
+        font-weight: lighter;
+      }
+
+      #tblChessGames td a {
+        color: #d9d9d9;
+      }
+
+      #tblChessGames td a:hover {
+        color: #fff;
+        text-decoration: none;
+      }
+
+      .clsGameStats {
+        color: black;
+        vertical-align: top;
+        font-size:xx-large;
+        height:30px;
+        text-align: center;
+        padding: 5px;
+        font-weight: lighter;
+      }
+
+      .userStats {
+        color: black;
+        vertical-align:middle;
+        font-size:xx-large;
+        height:30px;
+        text-align: center;
+        padding: 5px;
+      }
+
+      .thWins {
+        background-color: lightgreen;
+      }
+
+      .thLosses {
+        background-color: lightsalmon;
+      }
+
+      .thDraws {
+        background-color: lightyellow;
+      }
+    </style>
+
+    <div class='chessboard' id='gameslist'>
+      <table id='tblChessGames'>
+        <tr><th>Opponent</th><th>Link to Game</th></tr>
+        {% for item in data %}
+          <tr>
+          <td>{{ item[0] }}</td>
+          <td><a href='/board/{{item[1]}}'>{{ item[1][0:8] }}</a></td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <br />
+    <div style='text-align: center; width: 80%'>
+    {% for i in range(1, totalrecords//pagelimit + 2) %}
+      <a href="{{ url_for('pending', page=i)}}" class='paginate'> {{i}} </a>
+    {% endfor %}
+    </div>
+    <br />
+
+    <script>
+      function loadPage(page) {
+        
+      }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,549 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+  html {
+      height: 100%;
+  }
+  body {
+      min-height: 100%;
+      background-color:black;
+  }
+  h5, h4, h1 {
+        color:aquamarine;
+  }
+
+  .ids {
+    font-weight: normal;
+    color: #d9d9d9;
+    font-size: medium;
+  }
+
+  .chessboard {
+    margin: auto;
+  }
+
+  #tblWrapBoard {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #gamemoves {
+    margin: 50px auto;
+    border: 1px solid #d9d9d9;
+    width: 200px;
+    height: 300px;
+    overflow-y: auto;
+  }
+
+  #gamemoves::-webkit-scrollbar {
+    width: 12px;               /* width of the entire scrollbar */
+  }
+
+  #gamemoves::-webkit-scrollbar-track {
+    background: aquamarine;        /* color of the tracking area */
+  }
+  #gamemoves::-webkit-scrollbar-thumb {
+    background-color: #EF5350;    /* color of the scroll thumb */
+    border-radius: 20px;       /* roundness of the scroll thumb */
+    border: 3px solid aquamarine;  /* creates padding around scroll thumb */
+  }
+
+  #gameactions {
+    width: 200px; 
+    text-align: center;
+    margin: 20px auto;
+  }
+
+  .tblgamemoves {
+    width: 100%;
+  }
+
+  .tblgamemoves th {
+    background-color: #d9d9d9;
+    vertical-align: top;
+    height:30px;
+    padding: 5px;
+    padding-left: 10px;
+    font-weight: normal;
+  }
+
+  .tblgamemoves td {
+    color: aquamarine;
+    vertical-align: top;
+    height:30px;
+    padding-left: 10px;
+    font-weight: lighter;
+  }
+
+  .cellindex {
+    color: aquamarine;
+    font-weight: lighter;
+  }
+
+  .btn {
+        border: 2px solid transparent;
+        color: #000000;
+        text-decoration: none;
+        text-shadow: none;
+        border-radius: 3px;
+        box-shadow: none;
+        transition: 0.25s;
+        display: inline;
+        margin: 0 auto;
+    }
+
+    .btnDraw {
+        background: lightyellow;
+        width: 80px;
+    }
+
+    .btnSurrender {
+        background: lightsalmon;
+        width: 110px;
+    }
+
+    .btnAcceptInvite {
+        background: lightpink;
+        width: 120px;
+    }
+
+  #dlgOverlay {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+  }
+
+  #dlgAdditionalPieces {
+    position:fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    opacity:1;
+    width: 350px;
+    height: 110px;
+    background-color:dimgray;
+    border-radius: 5px;
+    box-shadow: 0px 0px 39px 12px rgba(0,0,0,0.75);
+    padding: 10px
+  }
+
+  .pieceAdditional {
+    font-size:60px; 
+    padding-left:5px; 
+    padding-right:5px; 
+    margin:5px; 
+    border:1px solid dimgray;
+    background-color:lightgray; 
+    display:inline;
+  }
+
+  #notes {
+    margin-top: 20px;
+    color: red;
+  }
+
+</style>
+
+    <div class="row">
+      <div class="col-12 col-lg-9 col-xl-9" style="text-align: center;">
+        <!--<h1>{% block title %} Chess {% endblock %}</h1> -->
+        <br/>
+        <span id='opponentid' class='ids'></span>
+        <div class='chessboard' id='chessboard'></div>
+        <span id='userid' class='ids'></span>
+        <div id="dlgOverlay" style="display:none">
+          <div id='dlgAdditionalPieces'>
+            <div id='additionalPieces'>Well Hello!!!</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-3 col-xl-3">
+        <div>
+          <div id='gamemoves'>
+            <table id='tblgamemoves' class='tblgamemoves'>
+              <tr><th>Moves</th></tr>
+            </table>
+          </div>
+          <div id='gameactions'>
+            <input type="button" class="btn btnDraw" id="btnDrawGame" value="Draw?" style = "display:none" onclick="callForDraw()"/>
+            <input type="button" class = "btn btnSurrender" id = "btnSurrenderGame" value="Surrender"  style = "display:none" onclick="surrenderGame()"/>
+            <input type="button" class = "btn btnAcceptInvite" id = "btnAcceptInvite" value="Accept Invite"  style = "display:none" onclick="acceptInvitation()"/>
+            <div id='notes'></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<!--    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+-->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+-->
+    <script>
+      var whoToMove = "";
+      var piecePickedPos = "";
+      var board=new Array(8);
+      var posspos = "";
+      var piecePicked = "";
+      var gc = "";
+      var isactive = "";
+      var userid = "";
+      var opponentid = "";
+      var killable = "";
+      var killpos = null;
+      var status = "";
+      var curruser = "";
+
+      // pieces_bkp = {'BR1':'&#9820','BK1':'&#9822','BB1':'&#9821','BQ':'&#9819','BX':'&#9818','BB2':'&#9821','BK2':'&#9822','BR2':'&#9820',
+      //           'BP1':'&#9823','BP2':'&#9823','BP3':'&#9823','BP4':'&#9823','BP5':'&#9823','BP6':'&#9823','BP7':'&#9823','BP8':'&#9823',
+      //           'WP1':'&#9817','WP2':'&#9817','WP3':'&#9817','WP4':'&#9817','WP5':'&#9817','WP6':'&#9817','WP7':'&#9817','WP8':'&#9817',
+      //           'WR1':'&#9814','WK1':'&#9816','WB1':'&#9815','WQ':'&#9813','WX':'&#9812','WB2':'&#9815','WK2':'&#9816','WR2':'&#9814'
+      //         };
+      pieces = {'BR':'&#9820','BK':'&#9822','BB':'&#9821','BQ':'&#9819','BX':'&#9818','BP':'&#9823',
+                'WR':'&#9814','WK':'&#9816','WB':'&#9815','WQ':'&#9813','WX':'&#9812','WP':'&#9817'
+              };
+
+      // pieces_white = ['WP1','WP2','WP3','WP4','WP5','WP6','WP7','WP8','WR1','WK1','WB1','WQ','WX','WB2','WK2','WR2'];
+      // pieces_black = ['BR1','BK1','BB1','BQ','BX','BB2','BK2','BR2','BP1','BP2','BP3','BP4','BP5','BP6','BP7','BP8'];
+      rows = {0:8, 1:7, 2:6, 3:5, 4:4, 5:3, 6:2, 7:1};
+      cols = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 5:'f', 6:'g', 7:'h'};
+
+      var pieces_white_add = {
+        'WR': {'html':'&#9814', 'index': 3}, 
+        'WK': {'html':'&#9816', 'index': 3}, 
+        'WB': {'html':'&#9815', 'index': 3}, 
+        'WQ': {'html':'&#9813', 'index': 1}
+      };
+      var pieces_black_add = {
+        'BR': {'html':'&#9820', 'index': 3}, 
+        'BK': {'html':'&#9822', 'index': 3}, 
+        'BB': {'html':'&#9821', 'index': 3}, 
+        'BQ': {'html':'&#9819', 'index': 1}
+      };
+      
+      $(document).ready(function(){
+        $(document).keyup(function(event) {
+          if (event.keyCode === 27) {
+            $("#dlgOverlay").hide();
+          }
+        });
+
+        data='{{data}}';
+        data=data.replace(/&#39;/g, "\"");
+        data=JSON.parse(data);
+        whoToMove=data["whoToMove"];
+        moves = data["moves"];
+        isactive = data['isactive']
+        userid = data["userid"]
+        opponentid = data["opponentid"]
+        wonby = data['wonby']
+        status = data['status'];
+        curruser = '{{user}}';
+        myturn = false;
+
+        var urlString = window.location.href;
+        var lastIndex = urlString.lastIndexOf('/');
+        gc = urlString.substring(lastIndex+1);
+
+        if ((whoToMove === 'W' && curruser === userid) || (whoToMove === 'B' && curruser === opponentid)) {
+          myturn = true;
+        }
+        else {
+          myturn = false;
+          loadBoardState(gc);
+        }
+
+        $.each(moves, function(index, value) {
+          cutValue = (value['piececut'] !== "") ? pieces[value['piececut'].substring(0, 2)] + "&nbsp;" : ""; 
+          replaceValue = (value['replaced'] !== "") ? ">&nbsp;"+pieces[value['replaced'].substring(0, 2)] + "&nbsp;" : ""; 
+          piece = pieces[value['move'].substring(0, 2)];
+          $('#tblgamemoves tr:last')
+            .after(
+              '<tr><td>'+piece+'&nbsp;'+replaceValue+cols[value['prevloc'][1]]+''+rows[value['prevloc'][0]]+'&nbsp;'+cutValue+''+cols[value['newloc'][1]]+''+rows[value['newloc'][0]]+'</td></tr>'
+            );
+        });
+
+        $("#opponentid").html("Opponent: "+opponentid)
+        $("#userid").html("User: "+userid)
+
+        if (curruser === opponentid && status === "Pending") {
+          $("#btnAcceptInvite").show();
+        }
+
+        if (isactive !== "False" && status !== "Pending") {
+          $("#btnDrawGame").show();
+          $("#btnSurrenderGame").show();
+        }
+        else if (isactive === "False") {
+          $("#notes").html(wonby + " Won.");
+        }
+
+        generateBoard(data["boardState"]);
+      })
+
+      function callForDraw() {
+        $.post("/drawresult", {
+          gc: gc,
+          userid: userid,
+          opponentid: opponentid
+        }, function(data, textStatus, jqXHR) {
+          alert(data);
+        });
+      }
+
+      function surrenderGame() {
+        $.post("/surrenderresult", {
+          gc: gc,
+          userid: userid,
+          opponentid: opponentid
+        }, function(data, textStatus, jqXHR) {
+          alert(data);
+        });
+      }
+
+      function acceptInvitation() {
+        $.post("/acceptinvite", {
+          gc: gc
+        }, function(data, textStatus, jqXHR) {
+          if (data['status'] === 'In Progress') {
+            $("#btnAcceptInvite").hide();
+            $("#btnSurrenderGame").show();
+            $("#btnDrawGame").show();
+            status = data['status'];
+          }
+          else {
+            alert(data['status']);
+          }
+        });
+      }
+
+      counter = 0;
+      function loadBoardState() {
+        counter++;
+        if (!myturn) {
+          $.post('/boardstate', {
+            gc: gc
+          }, function(data, textStatus, jqXHR) {
+            if (whoToMove != data["whoToMove"]) {
+              whoToMove = data["whoToMove"];
+              myturn = true;
+              generateBoard(data['boardState']);
+            }
+            else {
+              setTimeout(loadBoardState, 5000);
+            }
+          });
+        }
+      }
+
+      function checkForAction(i, j) {
+        if (myturn && isactive === "True" && status !== "Pending") {
+          piece = board[i][j]
+
+          if (piecePicked.startsWith("WP") && i == 0) {
+            var whiteAdditionals = "";
+              $.each(pieces_white_add, function(index, value) {
+                whiteAdditionals += "<div class='pieceAdditional' onclick='selectPiece("+i+","+j+",\""+index+"\", \""+value['index']+"\")'>"+value['html']+"</div>";
+              });
+              //alert(whiteAdditionals);
+              $("#additionalPieces").html(whiteAdditionals);
+              $("#dlgOverlay").show();
+              return false;
+          }
+          else if (piecePicked.startsWith("BP") && i == 7) {
+            var blackAdditionals = "";
+              $.each(pieces_black_add, function(index, value) {
+                blackAdditionals += "<div class='pieceAdditional' onclick='selectPiece("+i+","+j+",\""+index+"\", \""+value['index']+"\")'>"+value['html']+"</div>";
+              });
+              //alert(whiteAdditionals);
+              $("#additionalPieces").html(blackAdditionals);
+              $("#dlgOverlay").show();
+              return false;
+          }
+
+          if (piece !== "" && piece.startsWith(whoToMove)) {
+            showMoves(i, j, piece);
+          }
+          else if (posspos !== "") {
+            movePiece(i, j, "")
+          }
+        }
+      }
+
+      function generateBoard(data) {
+        for (i = 0; i < 8; i++) {
+          board[i] = new Array(8);
+          for (j = 0; j < 8; j++) {
+            board[i][j] = ""
+          }
+        }
+        for (i = 0; i < data.length; i++) {
+          try {
+            board[data[i][0]][data[i][1]] = data[i][2]
+          }
+          catch(e) {
+            
+          }
+        }
+        $("#chessboard").html("<h1>Rendering Chess Board...</h1>")
+        table = "<table id='tblChessBoard'>";
+        for (i = 0; i < 8; i++) {
+          table += "<tr>";
+          for (j = 0; j < 8; j++) {
+            piece = board[i][j] !== "" ? pieces[board[i][j].substring(0, 2)] : ""
+            fontsize = board[i][j].startsWith("BP") ? "font-size: 18px" : "font-size: 25px";
+            table += "<td id='cell_"+i+"_"+j+"' style='text-align:center; "+fontsize+"' onclick='checkForAction("+i+", "+j+")'>"+piece+"</td>";
+          }
+          table += "</tr>";
+        }
+        table += "</table>";
+        wraptable = "<table id='tblWrapBoard'>";
+        wraptable += "<tr><td class='cellindex'>8</td><td id='wrapboard' rowspan=8 colspan=8>"+table+"</td></tr>";
+        for (i = 7; i >=1; i--) {
+          wraptable += "<tr><td class='cellindex'>"+i+"</td></tr>";
+        }
+        wraptable += "<tr>";
+          wraptable += "<td></td>";
+        for (i = 0; i < 8; i++) {
+          wraptable += "<td class='cellindex'>"+cols[i]+"</td>";
+        }
+        wraptable += "</tr>";
+        wraptable += "</table>";
+        $("#chessboard").html(wraptable);
+        $("#tblChessBoard").css("border", "1px solid lightseagreen");
+        $("[id^=cell_]").css("border", "1px solid lightseagreen");
+        $("[id^=cell_]").css("min-width", "70px");
+        $("[id^=cell_]").css("height", "70px");
+        applyCSS();
+      }
+
+      function movePiece(i, j, replaced) {
+        piece = board[i][j];
+        if (killable !== "" && killpos !== null) {
+          if (whoToMove === "W") {
+            if (killpos[0][0] === i+1 && killpos[0][1] === j) {
+              piece = killable;
+            }
+          }
+          else {
+            if (killpos[0][0] === i-1 && killpos[0][1] === j) {
+              piece = killable;
+            }
+          }
+        }
+        cutValue = (piece !== "") ? pieces[piece.substring(0, 2)] + "&nbsp;" : ""; 
+        replaceValue = (replaced !== "") ? ">&nbsp;"+pieces[replaced.substring(0, 2)] + "&nbsp;" : ""; 
+        valid = false;
+        for (x = 0; x < posspos.length; x++) {
+          if (i == posspos[x][0] && j == posspos[x][1]) {
+            valid = true;
+            break;
+          }
+        }
+        if (valid) {
+          $.post("/movePiece/"+gc, {
+            move: piecePicked,
+            cut: piece,
+            replaced: replaced,
+            i: i,
+            j: j
+          }, function(data, textStatus, jqXHR) {
+            boardState = data["boardState"]
+            whoToMove = data["whoToMove"]
+            canKingMove = data["canKingMove"]
+            status = data['status']
+            wonby = data['wonby']
+            if ((whoToMove === 'W' && curruser === userid) || (whoToMove === 'B' && curruser === opponentid)) {
+              myturn = true;
+            }
+            else {
+              myturn = false;
+            }
+            generateBoard(boardState);
+            $('#tblgamemoves tr:first')
+              .after(
+                '<tr><td>'+pieces[piecePicked.substring(0, 2)]+'&nbsp;'+replaceValue+cols[piecePickedPos[1]]+''+rows[piecePickedPos[0]]+'&nbsp;'+cutValue+''+cols[j]+''+rows[i]+'</td></tr>'
+              );
+
+              if (wonby !== '') {
+                $("#btnDrawGame").hide();
+                $("#btnSurrenderGame").hide();
+                $("#notes").html(wonby + " Won.");
+              }
+              piecePicked = "";
+              posspos = "";
+              killable = "";
+              killpos = null;
+          });
+        }
+        else {
+          applyCSS()
+          piecePicked = ""
+          posspos = ""
+        }
+      }
+
+      function selectPiece(i, j, piece, index) {
+        $("#additionalPieces").html("");
+        $("#dlgOverlay").hide();
+        movePiece(i, j, piece);
+      }
+
+      function showMoves(i, j, piece) {
+        piecePicked = piece;
+        piecePickedPos = [i, j];
+
+        $.post("/showMoves", {
+          piece: piece
+        }, function(data, textStatus, jqXHR) {
+          posspos = data["posspos"];
+          killpos = data['killable'];
+          if (posspos !== "") {
+            applyCSS();
+            $("[id=cell_"+i+"_"+j+"]").css("background-color", "lightsalmon");
+            for (x = 0; x < posspos.length; x++) {
+              if (board[posspos[x][0]][posspos[x][1]] !== "" && !board[posspos[x][0]][posspos[x][1]].startsWith(whoToMove)) {
+                $("[id=cell_"+posspos[x][0]+"_"+posspos[x][1]+"]").css("background-color", "#fcafca");
+              }
+              else {
+                $("[id=cell_"+posspos[x][0]+"_"+posspos[x][1]+"]").css("background-color", "#cafcaf");
+              }
+            }
+            if (killpos !== null && killpos.length > 0) {
+              killable = board[killpos[0][0]][killpos[0][1]];
+              if (killpos[0][0] === i && (killpos[0][1] === (j+1) || killpos[0][1] === (j-1))) {
+                // $("[id=cell_"+killpos[0][0]+"_"+killpos[0][1]+"]").css("background-color", "#fcafca");
+                if (piece.substring(0, 1) === "W") {
+                  $("[id=cell_"+(killpos[0][0]-1)+"_"+killpos[0][1]+"]").css("background-color", "#fcafca");
+                }
+                else {
+                  $("[id=cell_"+(killpos[0][0]+1)+"_"+killpos[0][1]+"]").css("background-color", "#fcafca");
+                }
+              }
+            }
+          }
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+          alert(textStatus);
+        });
+      }
+
+      function applyCSS() {
+        for (i = 0; i < 8; i++) {
+          for (j = 0; j < 8; j++) {
+            bg =  (i + j) % 2 == 1 ? 'rgb(0, 255, 242)' : '#fff';
+            $("[id=cell_"+i+"_"+j+"]").css("background-color", bg);
+          }
+        }
+      }
+    </script>
+{% endblock %}
